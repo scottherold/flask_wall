@@ -1,0 +1,87 @@
+<!DOCTTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>Simple Wall</title>
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    </head>
+    <body>
+        <div class="container bg-light">
+            <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+                <a class="navbar-brand text-white">Simple Wall</a>
+                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                    <ul class="navbar-nav mr-auto">
+                        <li class="nav-item">
+                            <a class="nav-link" href="/">Home</a>
+                        </li>
+                        <li class="nav-item active">
+                            <a class="nav-link" href="/get_wall_data">Wall<span class="sr-only">(current)</span></a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/login">Login</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/registration">Registration</a>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+            <div class="jumbotron jumbotron-fluid bg-light">                
+                <h2 class="text-center">{{ welcome_message_wall }}</h2>
+                <hr class="my-4">
+                {% if 'logged_in' in session %}
+                    <div class="row w-100 mb-2">
+                        <div class="col w-50">
+                            <h3>
+                            {% for message in wall_data %}
+                                {% if session['user_id'] == message.recipient_id %}                            
+                                    {{ message.messages_received }}
+                                {% endif %}
+                            {% endfor %}
+                            Message(s) for you {{ name }}</h3>
+                            {% for message in wall_posts %}
+                                {% if session['user_id'] == message.recipient_id %}
+                                    <p>{{ message.first_name }} said on {{ message.message_date }} at {{ message.message_time }}:</p>
+                                    <p class="ml-5">{{ message.message }}</p>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                        <div class="col w-50">
+                            <h3>Send a message</h3>
+                            {% for user in wall_data %}
+                                {% if session['user_id'] == user.user_id %}
+                                    <p>You have sent a total of {{ user.messages_sent }} messages so far</p>
+                                {% endif %}
+                            {% endfor %}
+                            {% for user in wall_data %}
+                                {% if session['user_id'] != user.user_id %}
+                                    <form action="/create_message" method="post">
+                                        <div class="form-group row">
+                                            <label for="message" class="col-sm-2 col-form-label">{{ user.first_name }}</label>
+                                            <textarea class="form-control-sm mr-2 col-sm-6" name="message"></textarea>
+                                            <input type="hidden" name="recipient_id" value="{{ user.user_id }}">
+                                            <button type="submit" class="btn btn-primary">Send</button>
+                                        </div>
+                                    </form>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <hr class="my-4">
+                {% endif %}
+                <div class="row justify-content-center w-100 mb-2"> <!-- if session is active, don't display this -->
+                    <a href="/" class="btn btn-secondary ml-2">Home</a>
+                    {% if 'logged_in' in session %}
+                        <a href="/logout" class="btn btn-danger ml-2">Logout</a> <!-- if session is active, display this --  Logout kills session-->
+                    {% else %}
+                        <a href="/login" class="btn btn-secondary ml-2">Login</a>  <!-- if session is active, don't display this -->
+                        <a href="/registration" class="btn btn-secondary ml-2">Register</a>  <!-- if session is active, don't display this --> 
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </body>
+</html>
